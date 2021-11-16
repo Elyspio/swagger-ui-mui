@@ -32,78 +32,21 @@ import {
 import { BASE_PATH, BaseAPI, COLLECTION_FORMATS, RequestArgs, RequiredError } from "./base";
 
 /**
- *
- * @export
- * @interface Forbidden
- */
-export interface Forbidden {
-	/**
-	 * The error name
-	 * @type {string}
-	 * @memberof Forbidden
-	 */
-	name: string;
-	/**
-	 * An error message
-	 * @type {string}
-	 * @memberof Forbidden
-	 */
-	message: string;
-	/**
-	 * The status code of the exception
-	 * @type {number}
-	 * @memberof Forbidden
-	 */
-	status: number;
-	/**
-	 * A list of related errors
-	 * @type {Array<GenericError>}
-	 * @memberof Forbidden
-	 */
-	errors?: Array<GenericError>;
-	/**
-	 * The stack trace (only in development mode)
-	 * @type {string}
-	 * @memberof Forbidden
-	 */
-	stack?: string;
-}
-
-/**
- *
- * @export
- * @interface GenericError
- */
-export interface GenericError {
-	/**
-	 * The error name
-	 * @type {string}
-	 * @memberof GenericError
-	 */
-	name: string;
-	/**
-	 * An error message
-	 * @type {string}
-	 * @memberof GenericError
-	 */
-	message: string;
-
-	[key: string]: object | any;
-}
-
-/**
- * ExampleApi - axios parameter creator
+ * SwaggerApi - axios parameter creator
  * @export
  */
-export const ExampleApiAxiosParamCreator = function (configuration?: Configuration) {
+export const SwaggerApiAxiosParamCreator = function (configuration?: Configuration) {
 	return {
 		/**
-		 *
+		 * Get swagger/openapi configuration without cors issues
+		 * @param {string} href Link to the documentation
 		 * @param {*} [options] Override http request option.
 		 * @throws {RequiredError}
 		 */
-		get: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-			const localVarPath = `/api/test`;
+		getConfig: async (href: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+			// verify required parameter 'href' is not null or undefined
+			assertParamExists("getConfig", "href", href);
+			const localVarPath = `/api/swagger/fetch`;
 			// use dummy base URL string because the URL constructor only accepts absolute URLs.
 			const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
 			let baseOptions;
@@ -115,32 +58,9 @@ export const ExampleApiAxiosParamCreator = function (configuration?: Configurati
 			const localVarHeaderParameter = {} as any;
 			const localVarQueryParameter = {} as any;
 
-			setSearchParams(localVarUrlObj, localVarQueryParameter);
-			let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-			localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-			return {
-				url: toPathString(localVarUrlObj),
-				options: localVarRequestOptions,
-			};
-		},
-		/**
-		 *
-		 * @param {*} [options] Override http request option.
-		 * @throws {RequiredError}
-		 */
-		getAdmin: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-			const localVarPath = `/api/test/admin`;
-			// use dummy base URL string because the URL constructor only accepts absolute URLs.
-			const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-			let baseOptions;
-			if (configuration) {
-				baseOptions = configuration.baseOptions;
+			if (href !== undefined) {
+				localVarQueryParameter["href"] = href;
 			}
-
-			const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
-			const localVarHeaderParameter = {} as any;
-			const localVarQueryParameter = {} as any;
 
 			setSearchParams(localVarUrlObj, localVarQueryParameter);
 			let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -155,87 +75,61 @@ export const ExampleApiAxiosParamCreator = function (configuration?: Configurati
 };
 
 /**
- * ExampleApi - functional programming interface
+ * SwaggerApi - functional programming interface
  * @export
  */
-export const ExampleApiFp = function (configuration?: Configuration) {
-	const localVarAxiosParamCreator = ExampleApiAxiosParamCreator(configuration);
+export const SwaggerApiFp = function (configuration?: Configuration) {
+	const localVarAxiosParamCreator = SwaggerApiAxiosParamCreator(configuration);
 	return {
 		/**
-		 *
+		 * Get swagger/openapi configuration without cors issues
+		 * @param {string} href Link to the documentation
 		 * @param {*} [options] Override http request option.
 		 * @throws {RequiredError}
 		 */
-		async get(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-			const localVarAxiosArgs = await localVarAxiosParamCreator.get(options);
-			return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-		},
-		/**
-		 *
-		 * @param {*} [options] Override http request option.
-		 * @throws {RequiredError}
-		 */
-		async getAdmin(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-			const localVarAxiosArgs = await localVarAxiosParamCreator.getAdmin(options);
+		async getConfig(href: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+			const localVarAxiosArgs = await localVarAxiosParamCreator.getConfig(href, options);
 			return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
 		},
 	};
 };
 
 /**
- * ExampleApi - factory interface
+ * SwaggerApi - factory interface
  * @export
  */
-export const ExampleApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-	const localVarFp = ExampleApiFp(configuration);
+export const SwaggerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+	const localVarFp = SwaggerApiFp(configuration);
 	return {
 		/**
-		 *
+		 * Get swagger/openapi configuration without cors issues
+		 * @param {string} href Link to the documentation
 		 * @param {*} [options] Override http request option.
 		 * @throws {RequiredError}
 		 */
-		get(options?: any): AxiosPromise<string> {
-			return localVarFp.get(options).then((request) => request(axios, basePath));
-		},
-		/**
-		 *
-		 * @param {*} [options] Override http request option.
-		 * @throws {RequiredError}
-		 */
-		getAdmin(options?: any): AxiosPromise<string> {
-			return localVarFp.getAdmin(options).then((request) => request(axios, basePath));
+		getConfig(href: string, options?: any): AxiosPromise<string> {
+			return localVarFp.getConfig(href, options).then((request) => request(axios, basePath));
 		},
 	};
 };
 
 /**
- * ExampleApi - object-oriented interface
+ * SwaggerApi - object-oriented interface
  * @export
- * @class ExampleApi
+ * @class SwaggerApi
  * @extends {BaseAPI}
  */
-export class ExampleApi extends BaseAPI {
+export class SwaggerApi extends BaseAPI {
 	/**
-	 *
+	 * Get swagger/openapi configuration without cors issues
+	 * @param {string} href Link to the documentation
 	 * @param {*} [options] Override http request option.
 	 * @throws {RequiredError}
-	 * @memberof ExampleApi
+	 * @memberof SwaggerApi
 	 */
-	public get(options?: AxiosRequestConfig) {
-		return ExampleApiFp(this.configuration)
-			.get(options)
-			.then((request) => request(this.axios, this.basePath));
-	}
-
-	/**
-	 *
-	 * @param {*} [options] Override http request option.
-	 * @throws {RequiredError}
-	 * @memberof ExampleApi
-	 */
-	public getAdmin(options?: AxiosRequestConfig) {
-		return ExampleApiFp(this.configuration)
-			.getAdmin(options)
+	public getConfig(href: string, options?: AxiosRequestConfig) {
+		return SwaggerApiFp(this.configuration)
+			.getConfig(href, options)
 			.then((request) => request(this.axios, this.basePath));
 	}
 }

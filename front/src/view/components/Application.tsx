@@ -2,11 +2,11 @@ import * as React from "react";
 import "./Application.scss";
 import Brightness5Icon from "@mui/icons-material/Brightness5";
 import Brightness3Icon from "@mui/icons-material/Brightness3";
-import Example from "./test/Test";
+import { SwaggerUi } from "./swagger/SwaggerUi";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { toggleTheme } from "../../store/module/theme/theme.action";
 import { createDrawerAction, withDrawer } from "./utils/drawer/Drawer.hoc";
-import { Box } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { login, logout } from "../../store/module/authentication/authentication.action";
 import { Login, Logout } from "@mui/icons-material";
 
@@ -43,15 +43,15 @@ function Application() {
 	}
 
 	const drawer = withDrawer({
-		component: <Example />,
+		component: <SwaggerUi href={"https://elyspio.fr/authentication/swagger/swagger.json"} />,
 		actions,
-		title: "Example",
+		title: "Swagger UI",
 	});
 
 	return (
-		<Box className={"Application"} bgcolor={"background.default"}>
-			{drawer}
-		</Box>
+		<Container className={"Application"}>
+			<Box bgcolor={"background.default"}>{drawer}</Box>
+		</Container>
 	);
 }
 

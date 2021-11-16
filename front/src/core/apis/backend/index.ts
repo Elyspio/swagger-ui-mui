@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { ExampleApi } from "./generated";
+import { SwaggerApi } from "./generated";
 import axios from "axios";
 import { BaseAPI } from "./generated/base";
 
@@ -14,6 +14,6 @@ function createApi<T extends BaseAPI>(cls: Newable<T>): T {
 }
 
 @injectable()
-export class ExampleApiClient {
-	public readonly client = createApi(ExampleApi);
+export class SwaggerApiClient {
+	public readonly client = createApi(SwaggerApi);
 }
