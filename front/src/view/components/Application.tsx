@@ -6,7 +6,7 @@ import { SwaggerUi } from "./swagger/SwaggerUi";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { toggleTheme } from "../../store/module/theme/theme.action";
 import { createDrawerAction, withDrawer } from "./utils/drawer/Drawer.hoc";
-import { Box, Container } from "@mui/material";
+import { Box } from "@mui/material";
 import { login, logout } from "../../store/module/authentication/authentication.action";
 import { Login, Logout } from "@mui/icons-material";
 
@@ -49,9 +49,9 @@ function Application() {
 	});
 
 	return (
-		<Container className={"Application"}>
-			<Box bgcolor={"background.default"}>{drawer}</Box>
-		</Container>
+		<Box bgcolor={"background.default"} className={"Application"}>
+			{drawer}
+		</Box>
 	);
 }
 
