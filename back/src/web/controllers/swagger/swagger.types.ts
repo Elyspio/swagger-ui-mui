@@ -59,7 +59,7 @@ export interface ComponentsObject {
  */
 export interface PathsObject {
 	// [path: string]: PathItemObject;
-	[path: string]: PathItemObject ; // Hack for allowing ISpecificationExtension
+	[path: string]: PathItemObject; // Hack for allowing ISpecificationExtension
 }
 
 /**

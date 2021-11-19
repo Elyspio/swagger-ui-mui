@@ -1,5 +1,7 @@
-import { AnyOf, Property, Required } from "@tsed/schema";
+import { AnyOf, Enum, Property, Required } from "@tsed/schema";
 import { ExternalDocumentationObject, OperationObject, ParameterObject, PathItemObject, ReferenceObject, ServerObject, ServerVariableObject } from "./swagger.types";
+import { TraefikRouterData } from "../../../core/services/traefik/traefik.service";
+import { Status } from "../../../core/services/traefik/traefik.type";
 
 export class ExternalDocumentationObjectModel implements ExternalDocumentationObject {
 	@Property()
@@ -68,4 +70,19 @@ export class PathItemObjectModel implements PathItemObject {
 	@Property()
 	servers?: ServerObject[];
 	parameters?: (ParameterObject | ReferenceObject)[];
+}
+
+export class TraefikRouterModel implements TraefikRouterData {
+	@Property()
+	@Required()
+	public path: string;
+	@Property()
+	@Required()
+	public name: string;
+	@Property()
+	@Required()
+	public service: string;
+	@Enum(Status)
+	@Required()
+	public status: Status;
 }

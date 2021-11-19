@@ -32,6 +32,47 @@ import {
 import { BASE_PATH, BaseAPI, COLLECTION_FORMATS, RequestArgs, RequiredError } from "./base";
 
 /**
+ *
+ * @export
+ * @interface TraefikRouterModel
+ */
+export interface TraefikRouterModel {
+	/**
+	 *
+	 * @type {string}
+	 * @memberof TraefikRouterModel
+	 */
+	path: string;
+	/**
+	 *
+	 * @type {string}
+	 * @memberof TraefikRouterModel
+	 */
+	name: string;
+	/**
+	 *
+	 * @type {string}
+	 * @memberof TraefikRouterModel
+	 */
+	service: string;
+	/**
+	 *
+	 * @type {string}
+	 * @memberof TraefikRouterModel
+	 */
+	status: TraefikRouterModelStatusEnum;
+}
+
+/**
+ * @export
+ * @enum {string}
+ */
+export enum TraefikRouterModelStatusEnum {
+	Enabled = "enabled",
+	Disabled = "disabled",
+}
+
+/**
  * SwaggerApi - axios parameter creator
  * @export
  */
@@ -71,6 +112,33 @@ export const SwaggerApiAxiosParamCreator = function (configuration?: Configurati
 				options: localVarRequestOptions,
 			};
 		},
+		/**
+		 *
+		 * @param {*} [options] Override http request option.
+		 * @throws {RequiredError}
+		 */
+		getRouters: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+			const localVarPath = `/api/swagger/routers`;
+			// use dummy base URL string because the URL constructor only accepts absolute URLs.
+			const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+			let baseOptions;
+			if (configuration) {
+				baseOptions = configuration.baseOptions;
+			}
+
+			const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
+			const localVarHeaderParameter = {} as any;
+			const localVarQueryParameter = {} as any;
+
+			setSearchParams(localVarUrlObj, localVarQueryParameter);
+			let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+			localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+			return {
+				url: toPathString(localVarUrlObj),
+				options: localVarRequestOptions,
+			};
+		},
 	};
 };
 
@@ -89,6 +157,15 @@ export const SwaggerApiFp = function (configuration?: Configuration) {
 		 */
 		async getConfig(href: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
 			const localVarAxiosArgs = await localVarAxiosParamCreator.getConfig(href, options);
+			return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+		},
+		/**
+		 *
+		 * @param {*} [options] Override http request option.
+		 * @throws {RequiredError}
+		 */
+		async getRouters(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TraefikRouterModel>>> {
+			const localVarAxiosArgs = await localVarAxiosParamCreator.getRouters(options);
 			return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
 		},
 	};
@@ -110,6 +187,14 @@ export const SwaggerApiFactory = function (configuration?: Configuration, basePa
 		getConfig(href: string, options?: any): AxiosPromise<string> {
 			return localVarFp.getConfig(href, options).then((request) => request(axios, basePath));
 		},
+		/**
+		 *
+		 * @param {*} [options] Override http request option.
+		 * @throws {RequiredError}
+		 */
+		getRouters(options?: any): AxiosPromise<Array<TraefikRouterModel>> {
+			return localVarFp.getRouters(options).then((request) => request(axios, basePath));
+		},
 	};
 };
 
@@ -130,6 +215,18 @@ export class SwaggerApi extends BaseAPI {
 	public getConfig(href: string, options?: AxiosRequestConfig) {
 		return SwaggerApiFp(this.configuration)
 			.getConfig(href, options)
+			.then((request) => request(this.axios, this.basePath));
+	}
+
+	/**
+	 *
+	 * @param {*} [options] Override http request option.
+	 * @throws {RequiredError}
+	 * @memberof SwaggerApi
+	 */
+	public getRouters(options?: AxiosRequestConfig) {
+		return SwaggerApiFp(this.configuration)
+			.getRouters(options)
 			.then((request) => request(this.axios, this.basePath));
 	}
 }

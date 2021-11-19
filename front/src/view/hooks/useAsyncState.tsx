@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type UseAsyncStateParams<T> = () => Promise<T>;
 
-export function useAsyncState<T>(func: UseAsyncStateParams<T>, defaultValue: T, replay?: number) {
+export function useAsyncState<T>(func: UseAsyncStateParams<T>, defaultValue: T, dependencies?: any[], replay?: number) {
 	const [data, setData] = useState<T>(defaultValue);
 
-	const handle = async (func: UseAsyncStateParams<T>) => {
+	const handle = useCallback(async (func: UseAsyncStateParams<T>) => {
 		const out = await func();
 		setData(out);
-	};
+	}, []);
 
 	useEffect(() => {
 		handle(func);
@@ -22,7 +22,7 @@ export function useAsyncState<T>(func: UseAsyncStateParams<T>, defaultValue: T, 
 		return () => {
 			timer && clearInterval(timer);
 		};
-	}, [func]);
+	}, [handle, func, replay, ...(dependencies ?? [])]);
 
 	return {
 		data: data,
