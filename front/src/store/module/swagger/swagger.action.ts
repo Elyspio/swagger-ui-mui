@@ -6,7 +6,7 @@ import { SwaggerService } from "../../../core/services/swagger/swagger.service";
 
 const service = container.get<SwaggerService>(DiKeysService.swagger);
 
-export const getSwaggerConfig = createAsyncThunk("authentication/logout", async (uri: string) => {
+export const getSwaggerConfig = createAsyncThunk("swagger/getConfig", async (uri: string) => {
 	return await toast.promise(service.getSwaggerConfig(uri), {
 		error: `Could not fetch configuration at ${uri}`,
 		pending: `Fetching ${uri}`,

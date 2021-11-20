@@ -26,6 +26,7 @@ $header-size: 4rem;
 		justify-content: center;
 		align-items: center;
 		padding: 1rem;
+		height: calc(100% - #{$header-size});
 
 		* > {
 			height: 100%;

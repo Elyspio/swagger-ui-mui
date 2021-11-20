@@ -7,6 +7,7 @@ export type TraefikRouterData = {
 	path: TraefikRouter["rule"];
 	status: TraefikRouter["status"];
 	name: TraefikRouter["name"];
+	swagger: string;
 };
 
 const traefikBaseUrl = process.env.TRAEFIK_BASE_URL ?? "https://elyspio.fr/proxy";
@@ -18,16 +19,26 @@ export class TraefikService {
 
 		const ret: TraefikRouterData[] = [];
 
-		data.forEach((datum) => {
-			if (datum.rule.includes("PathPrefix") && !datum.service.includes("@")) {
-				ret.push({
-					service: datum.service,
-					path: datum.rule.replace(/PathPrefix\(`(.*)`\)/g, "$1"),
-					status: datum.status,
-					name: datum.name,
-				});
-			}
-		});
+		await Promise.all(
+			data.map(async (datum) => {
+				if (datum.rule.includes("PathPrefix") && !datum.service.includes("@")) {
+					let path = datum.rule.replace(/PathPrefix\(`(.*)`\)/g, "$1");
+					const swagger = `https://elyspio.fr${path}/swagger/swagger.json`;
+
+					try {
+						await axios.get(swagger, { timeout: 500 });
+
+						ret.push({
+							service: datum.service,
+							path: path,
+							status: datum.status,
+							name: datum.name,
+							swagger,
+						});
+					} catch {}
+				}
+			})
+		);
 
 		return ret;
 	}

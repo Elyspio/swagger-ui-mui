@@ -60,6 +60,12 @@ export interface TraefikRouterModel {
 	 * @type {string}
 	 * @memberof TraefikRouterModel
 	 */
+	swagger: string;
+	/**
+	 *
+	 * @type {string}
+	 * @memberof TraefikRouterModel
+	 */
 	status: TraefikRouterModelStatusEnum;
 }
 
