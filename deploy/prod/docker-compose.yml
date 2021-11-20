@@ -1,0 +1,25 @@
+version: "3"
+services:
+    swagger-ui-mui:
+        container_name: swagger-ui-mui
+        restart: always
+        image: elyspio/swagger-ui-mui
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=external"
+            - "traefik.http.middlewares.swagger-ui-mui-prefix.stripprefix.prefixes=/apps/docs"
+            - "traefik.http.routers.swagger-ui-mui.middlewares=swagger-ui-mui-prefix@docker"
+            - "traefik.http.routers.swagger-ui-mui.rule=PathPrefix(`/apps/docs`)"
+            - "traefik.http.services.swagger-ui-mui.loadbalancer.server.port=4000"
+            - "traefik.http.routers.swagger-ui-mui.entrypoints=external"
+        environment:
+            TRAEFIK_URL: http://traefik
+        volumes:
+            - ./config/front/conf.js:/front/conf.js
+        networks:
+            - swagger-ui-mui
+            - external
+networks:
+    swagger-ui-mui:
+    external:
+        external: true
