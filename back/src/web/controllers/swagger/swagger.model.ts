@@ -82,6 +82,9 @@ export class TraefikRouterModel implements TraefikRouterData {
 	@Property()
 	@Required()
 	public service: string;
+	@Property()
+	@Required()
+	public swagger: string;
 	@Enum(Status)
 	@Required()
 	public status: Status;

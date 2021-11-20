@@ -25,7 +25,7 @@ export function SwaggerDetail() {
 	const mappedControllers = React.useMemo(() => Object.values(mergeByLetter(controllers)), [controllers]);
 
 	return (
-		<Grid container item direction={"row"} spacing={2}>
+		<Grid container direction={"row"} spacing={2}>
 			{mappedControllers.map((ctrls, index) => (
 				<Grid item container p={4} key={index} spacing={2}>
 					{ctrls.map((ctrl) => (
