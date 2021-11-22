@@ -1,11 +1,12 @@
 import { createReducer } from "@reduxjs/toolkit";
 import { getSwaggerConfig } from "./swagger.action";
-import type { OpenAPIObject, ParameterObject, PathItemObject, RequestBodyObject, SchemaObject } from "../../../core/services/swagger/swagger.types";
+import type { OpenAPIObject, ParameterObject, PathItemObject, ReferenceObject, RequestBodyObject } from "../../../core/services/swagger/swagger.types";
 import { ResponseObject } from "../../../core/services/swagger/swagger.types";
-import { httpMethods, SwaggerResponse, SwaggerRoute } from "./swagger.types";
+import { httpMethods, SwaggerRequestBody, SwaggerResponse, SwaggerRoute } from "./swagger.types";
 
 export interface SwaggerState {
 	config?: OpenAPIObject;
+	models: Required<OpenAPIObject>["components"]["schemas"];
 	controllers: {
 		name: string;
 		description?: string;
@@ -15,12 +16,74 @@ export interface SwaggerState {
 
 const defaultState: SwaggerState = {
 	controllers: [],
+	models: {},
+};
+
+const getRefName = (str: string) => str.replace(new RegExp("#/components/schemas/(.*)"), "$1");
+type ReferenceOrAny = ReferenceObject | Required<any>;
+const isRefType = (obj: ReferenceOrAny): obj is ReferenceObject => (obj as ReferenceObject).$ref !== undefined;
+
+const findModel = <Obj extends ReferenceOrAny>(state: SwaggerState, obj: Obj): any => {
+	let ret = obj;
+	for (const k of Object.keys(obj ?? {})) {
+		console.log(obj, k, obj[k], obj[k].$ref);
+		if (k === "$ref") {
+			const modelName = getRefName(obj[k]);
+			return state.config?.components?.["schemas"]?.[modelName] as any;
+		} else if (typeof obj === "object") {
+			ret[k] = findModel(state, ret[k]);
+		}
+	}
+	return ret as any;
+};
+
+function parseReqBody(state: SwaggerState, body?: RequestBodyObject): SwaggerRequestBody | undefined {
+	console.log("parseReqBody");
+	if (body === undefined) return undefined;
+
+	let content: SwaggerRequestBody["content"] = {};
+
+	Object.entries(body.content).forEach(([contentType, value]: [string, RequestBodyObject["content"][string]]) => {
+		let schema = findModel(state, value.schema!);
+
+		content[contentType] = {
+			encoding: value.encoding,
+			schema,
+		};
+	});
+
+	return {
+		content: content,
+		description: body.description,
+		required: body.required ?? false,
+	};
+}
+
+let parseReqParameters = (state, param: ParameterObject) => {
+	console.log("parseReqParameters");
+	let schema = findModel(state, param.schema!);
+
+	return {
+		deprecated: param.deprecated ?? false,
+		description: param.description,
+		schema,
+		name: param.name,
+		in: param.in,
+		allowEmptyValue: param.allowEmptyValue ?? false,
+		allowReserved: param.allowReserved ?? false,
+		required: param.required ?? false,
+	};
 };
 
 export const swaggerReducer = createReducer(defaultState, (builder) => {
 	builder.addCase(getSwaggerConfig.fulfilled, (state, action) => {
 		state.config = action.payload;
 		const controllers: SwaggerState["controllers"] = [];
+		const models = state.config.components?.schemas ?? {};
+
+		Object.entries(models).forEach(([key, value]) => {
+			models[key] = findModel(state, value);
+		});
 
 		Object.entries(action.payload.paths).forEach(([path, param]: [string, PathItemObject]) => {
 			httpMethods.forEach((method) => {
@@ -49,21 +112,8 @@ export const swaggerReducer = createReducer(defaultState, (builder) => {
 						method,
 						description: query.description,
 						deprecated: query.deprecated ?? false,
-						parameters: (query.parameters ?? []).map((p) => {
-							const obj = p as ParameterObject;
-							const schema = ("$ref" in (obj.schema ?? {}) ? state.config!.components?.schemas?.[obj.schema!["$ref"]] : obj.schema) as SchemaObject;
-							return {
-								deprecated: obj.deprecated ?? false,
-								description: obj.description,
-								schema,
-								name: obj.name,
-								in: obj.in,
-								allowEmptyValue: obj.allowEmptyValue ?? false,
-								allowReserved: obj.allowReserved ?? false,
-								required: obj.required ?? false,
-							};
-						}),
-						requestBody: query.requestBody as RequestBodyObject,
+						parameters: (query.parameters ?? []).map((param) => parseReqParameters(state, param as ParameterObject)),
+						requestBody: query.requestBody ? (isRefType(query.requestBody) ? undefined : parseReqBody(state, query.requestBody)) : undefined,
 						responses,
 						uri: path,
 					});
@@ -76,6 +126,7 @@ export const swaggerReducer = createReducer(defaultState, (builder) => {
 			ctrl.routes.sort((routeA, routeB) => routeA.uri.localeCompare(routeB.uri));
 		});
 
+		state.models = models;
 		state.controllers = controllers;
 	});
 });

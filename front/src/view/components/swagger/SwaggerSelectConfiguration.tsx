@@ -12,7 +12,7 @@ type Props = {
 	/**
 	 * Link to the swagger.json file (url or link to the documentation)
 	 */
-	href: string;
+	href?: string;
 };
 
 export function SwaggerSelectConfiguration({ href }: Props) {
@@ -28,23 +28,41 @@ export function SwaggerSelectConfiguration({ href }: Props) {
 
 	const { data: routers } = useAsyncState(getTraefikRouters, [], []);
 
-	const fetchConfig = React.useCallback(() => {
-		let useUrl = url;
-		const router = routers.find((datum) => datum.service === url);
-		if (router) {
-			useUrl = router.swagger;
+	const fetchConfig = React.useCallback(
+		(urlCb?: string) => {
+			let useUrl = urlCb ?? url;
+			const router = routers.find((datum) => datum.service === urlCb ?? url);
+			if (router) {
+				useUrl = router.swagger;
+			}
+			if (useUrl) {
+				dispatch(getSwaggerConfig(useUrl));
+			}
+		},
+		[dispatch, url, routers]
+	);
+
+	React.useEffect(() => {
+		if (href) {
+			dispatch(getSwaggerConfig(href));
 		}
-		dispatch(getSwaggerConfig(useUrl));
-	}, [dispatch, url, routers]);
+	}, [href, dispatch]);
 
 	const { palette } = useTheme();
 
+	let onPreChange = React.useCallback(
+		(e, value) => {
+			setUrl(value as string);
+			fetchConfig(value as string);
+		},
+		[fetchConfig]
+	);
 	return (
 		<Grid container alignItems={"center"} spacing={2} sx={{ backgroundColor: palette.background.paper }} pb={2}>
 			<Grid item xs={true} minWidth={800} p={0}>
 				<Autocomplete
 					freeSolo
-					onChange={(e, value) => setUrl(value as string)}
+					onChange={onPreChange}
 					options={routers.map((data) => data.service)}
 					value={url}
 					renderInput={(params) => <TextField {...params} label={"Url"} value={url} onChange={(e) => setUrl(e.target.value)} />}
@@ -52,7 +70,7 @@ export function SwaggerSelectConfiguration({ href }: Props) {
 			</Grid>
 
 			<Grid item>
-				<Button variant={"outlined"} onClick={fetchConfig}>
+				<Button variant={"outlined"} onClick={() => fetchConfig()}>
 					Fetch
 				</Button>
 			</Grid>

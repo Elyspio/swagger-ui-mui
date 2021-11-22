@@ -8,7 +8,7 @@ type Props = {
 	/**
 	 * Link to the swagger.json file (url or link to the documentation)
 	 */
-	href: string;
+	href?: string;
 };
 
 export const SwaggerUi = ({ href }: Props) => {

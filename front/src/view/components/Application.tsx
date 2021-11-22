@@ -45,7 +45,7 @@ function Application() {
 	const drawer = withDrawer({
 		component: <SwaggerUi href={"https://elyspio.fr/authentication/swagger/swagger.json"} />,
 		actions,
-		title: "Swagger UI",
+		title: "Apps documentation",
 	});
 
 	return (

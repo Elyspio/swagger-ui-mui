@@ -1,4 +1,4 @@
-import type { ParameterLocation, RequestBodyObject, ResponseObject, SchemaObject } from "../../../core/services/swagger/swagger.types";
+import type { EncodingPropertyObject, ParameterLocation, ResponseObject, SchemaObject } from "../../../core/services/swagger/swagger.types";
 
 export const httpMethods = ["get", "post", "patch", "delete", "put", "options", "trace"] as const;
 export type HTTPMethod = typeof httpMethods[number];
@@ -8,7 +8,7 @@ export type SwaggerRoute = {
 	method: HTTPMethod;
 	description?: string;
 	parameters: SwaggerParameter[];
-	requestBody?: RequestBodyObject;
+	requestBody?: SwaggerRequestBody;
 	responses: SwaggerResponse[];
 	deprecated: boolean;
 };
@@ -25,3 +25,16 @@ export type SwaggerParameter = {
 };
 
 export type SwaggerResponse = ResponseObject & { statusCode: number };
+
+export interface SwaggerRequestBody {
+	description?: string;
+	content: {
+		[contentType: string]: {
+			schema?: SchemaObject;
+			encoding?: {
+				[contentType in string]: EncodingPropertyObject;
+			};
+		};
+	};
+	required: boolean;
+}
