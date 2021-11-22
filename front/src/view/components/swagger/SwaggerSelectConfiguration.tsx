@@ -59,7 +59,7 @@ export function SwaggerSelectConfiguration({ href }: Props) {
 	);
 	return (
 		<Grid container alignItems={"center"} spacing={2} sx={{ backgroundColor: palette.background.paper }} pb={2}>
-			<Grid item xs={true} minWidth={800} p={0}>
+			<Grid item xs={true} minWidth={400} p={0}>
 				<Autocomplete
 					freeSolo
 					onChange={onPreChange}
