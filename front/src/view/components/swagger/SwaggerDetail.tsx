@@ -1,7 +1,7 @@
 import React from "react";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Grid, Typography, useTheme } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
-import { SwaggerEntry } from "./SwaggerEntry";
+import { SwaggerEntry } from "./entry/SwaggerEntry";
 import { useAppSelector } from "../../../store";
 import { SwaggerState } from "../../../store/module/swagger/swagger.reducer";
 

@@ -12,7 +12,7 @@ import type {
 	ResponseObject,
 	SchemaObject,
 } from "./swagger.types";
-import { httpMethods, SwaggerRequestBody, SwaggerResponse } from "../../../store/module/swagger/swagger.types";
+import { httpMethods, SwaggerContent, SwaggerRequestBody, SwaggerResponse } from "../../../store/module/swagger/swagger.types";
 import type { SwaggerState } from "../../../store/module/swagger/swagger.reducer";
 
 type ReferenceOrAny = ReferenceObject | Required<any>;
@@ -71,7 +71,7 @@ export class SwaggerService {
 						deprecated: query.deprecated ?? false,
 						parameters: (query.parameters ?? []).map((param) => this.parseReqParameters(schemas, param as ParameterObject)),
 						requestBody: query.requestBody ? (this.isRefType(query.requestBody) ? undefined : this.parseReqBody(schemas, query.requestBody)) : undefined,
-						responses,
+						responses: responses.map((res) => this.parseResponses(schemas, res)),
 						uri: path,
 					});
 				}
@@ -92,10 +92,11 @@ export class SwaggerService {
 	private findModel<Obj extends ReferenceOrAny>(schemas: ComponentsObject["schemas"], obj: Obj): any {
 		let ret = obj;
 		for (const k of Object.keys(obj ?? {})) {
-			console.log(obj, k, obj[k], obj[k].$ref);
 			if (k === "$ref") {
 				const modelName = this.getRefName(obj[k]);
-				return schemas?.[modelName] as any;
+				const model = schemas?.[modelName] as any;
+				model.name = modelName;
+				return model;
 			} else if (typeof obj === "object") {
 				ret[k] = this.findModel(schemas, ret[k]);
 			}
@@ -122,6 +123,29 @@ export class SwaggerService {
 			content: content,
 			description: body.description,
 			required: body.required ?? false,
+		};
+	}
+
+	private parseResponses(schemas: ComponentsObject["schemas"], response: SwaggerResponse): SwaggerResponse {
+		console.log("parseReqBody");
+
+		let content: SwaggerRequestBody["content"] = {};
+
+		Object.entries(response.content ?? {}).forEach(([contentType, value]: [string, SwaggerContent[string]]) => {
+			let schema = this.findModel(schemas, value.schema!);
+
+			content[contentType] = {
+				encoding: value.encoding,
+				schema,
+			};
+		});
+
+		return {
+			content: content,
+			description: response.description,
+			statusCode: response.statusCode,
+			headers: response.headers,
+			links: response.links,
 		};
 	}
 

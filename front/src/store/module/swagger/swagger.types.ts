@@ -24,17 +24,19 @@ export type SwaggerParameter = {
 	schema?: SchemaObject;
 };
 
-export type SwaggerResponse = ResponseObject & { statusCode: number };
+export type SwaggerResponse = Omit<ResponseObject, "content"> & { statusCode: number } & { content?: SwaggerContent };
+
+export type SwaggerContent = {
+	[contentType: string]: {
+		schema?: SchemaObject & { name?: string };
+		encoding?: {
+			[contentType in string]: EncodingPropertyObject;
+		};
+	};
+};
 
 export interface SwaggerRequestBody {
 	description?: string;
-	content: {
-		[contentType: string]: {
-			schema?: SchemaObject;
-			encoding?: {
-				[contentType in string]: EncodingPropertyObject;
-			};
-		};
-	};
+	content: SwaggerContent;
 	required: boolean;
 }

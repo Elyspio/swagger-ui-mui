@@ -159,7 +159,7 @@ export interface ContentObject {
 }
 
 export interface MediaTypeObject {
-	schema?: SchemaObject | ReferenceObject;
+	schema?: SchemaObject;
 	examples?: ExamplesObject;
 	example?: any;
 	encoding?: EncodingObject;
