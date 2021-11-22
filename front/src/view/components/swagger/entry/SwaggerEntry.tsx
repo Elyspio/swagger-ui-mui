@@ -6,6 +6,7 @@ import { useModal } from "../../../hooks/useModal";
 import { getChipColor, MethodChip } from "./MethodChip";
 import "./SwaggerEntry.scss";
 import { ResponseChip } from "./ResponseChip";
+import { Parameters } from "./Parameters";
 
 type Props = {
 	data: SwaggerRoute;
@@ -54,9 +55,9 @@ export function SwaggerEntry({ data }: Props) {
 							</Grid>
 
 							<Grid container item spacing={0.7}>
-								{data.responses.map((res) => (
+								{data.parameters.map((param) => (
 									<Grid item className={"w100"}>
-										<ResponseChip key={res.statusCode} {...res} uri={data.uri} method={data.method} />
+										<Parameters key={param.name} {...param} />
 									</Grid>
 								))}
 							</Grid>

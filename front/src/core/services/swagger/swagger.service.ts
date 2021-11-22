@@ -12,7 +12,7 @@ import type {
 	ResponseObject,
 	SchemaObject,
 } from "./swagger.types";
-import { httpMethods, SwaggerContent, SwaggerRequestBody, SwaggerResponse } from "../../../store/module/swagger/swagger.types";
+import { httpMethods, SwaggerContent, SwaggerRequestBody, SwaggerResponse, SwaggerSchema } from "../../../store/module/swagger/swagger.types";
 import type { SwaggerState } from "../../../store/module/swagger/swagger.reducer";
 
 type ReferenceOrAny = ReferenceObject | Required<any>;
@@ -28,6 +28,28 @@ export class SwaggerService {
 
 	public async getTraefikRouters() {
 		return await this.swaggerApi.client.getRouters().then((x) => x.data);
+	}
+
+	public jsonObjectToJsonExample(json: SwaggerSchema) {
+		if (json.type === "object") {
+			const ret = {};
+			Object.entries(json.properties ?? {}).forEach(([name, val]) => {
+				if (val.type === "object") ret[name] = this.jsonObjectToJsonExample(val);
+				else if (val.type === "boolean") ret[name] = false;
+				else if (val.type === "number") ret[name] = 0;
+				else if (val.type === "string") ret[name] = val.enum ?? "string";
+				else if (val.type === "array") {
+					ret[name] = val.enum ? this.jsonObjectToJsonExample(val.items) : [this.jsonObjectToJsonExample(val.items)];
+				} else if (val.type === "integer") ret[name] = 0;
+				else if (val.type === "null") ret[name] = null;
+			});
+			return ret;
+		} else if (json.type === "boolean") return false;
+		else if (json.type === "number") return 0;
+		else if (json.type === "string") return json.enum ?? "string";
+		else if (json.type === "array") return [this.jsonObjectToJsonExample(json.items)];
+		else if (json.type === "integer") return 0;
+		else if (json.type === "null") return null;
 	}
 
 	// region parse
@@ -60,8 +82,9 @@ export class SwaggerService {
 
 					Object.entries(query.responses).forEach(([httpStatus, response]: [string, ResponseObject]) => {
 						responses.push({
-							statusCode: Number.parseInt(httpStatus),
 							...response,
+							content: response.content as any,
+							statusCode: Number.parseInt(httpStatus),
 						});
 					});
 
@@ -105,7 +128,6 @@ export class SwaggerService {
 	}
 
 	private parseReqBody(schemas: ComponentsObject["schemas"], body?: RequestBodyObject): SwaggerRequestBody | undefined {
-		console.log("parseReqBody");
 		if (body === undefined) return undefined;
 
 		let content: SwaggerRequestBody["content"] = {};
@@ -127,8 +149,6 @@ export class SwaggerService {
 	}
 
 	private parseResponses(schemas: ComponentsObject["schemas"], response: SwaggerResponse): SwaggerResponse {
-		console.log("parseReqBody");
-
 		let content: SwaggerRequestBody["content"] = {};
 
 		Object.entries(response.content ?? {}).forEach(([contentType, value]: [string, SwaggerContent[string]]) => {
@@ -150,7 +170,6 @@ export class SwaggerService {
 	}
 
 	private parseReqParameters(state: ComponentsObject["schemas"], param: ParameterObject) {
-		console.log("parseReqParameters");
 		let schema = this.findModel(state, param.schema!);
 
 		return {

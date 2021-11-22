@@ -1,0 +1,26 @@
+.JsonViewer {
+
+	.key {
+		color: #e8a1e8;
+	}
+
+	.string {
+		color: #d98e3e;
+	}
+
+	.number {
+		color: lightgreen;
+	}
+
+	.object {
+		color: lightblue;
+	}
+
+	.boolean {
+		color: #64d8ec;
+	}
+
+	.null {
+		color: #787777;
+	}
+}

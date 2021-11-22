@@ -21,14 +21,20 @@ export type SwaggerParameter = {
 	deprecated: boolean;
 	allowEmptyValue: boolean;
 	allowReserved: boolean;
-	schema?: SchemaObject;
+	schema?: SwaggerSchema;
 };
 
 export type SwaggerResponse = Omit<ResponseObject, "content"> & { statusCode: number } & { content?: SwaggerContent };
 
+export type SwaggerSchema = Omit<SchemaObject, "properties" | "items"> & {
+	properties: Record<string, SwaggerSchema>;
+	items: SwaggerSchema;
+	name: string;
+};
+
 export type SwaggerContent = {
 	[contentType: string]: {
-		schema?: SchemaObject & { name?: string };
+		schema?: SwaggerSchema;
 		encoding?: {
 			[contentType in string]: EncodingPropertyObject;
 		};
