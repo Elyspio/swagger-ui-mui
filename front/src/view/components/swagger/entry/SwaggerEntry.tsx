@@ -7,6 +7,7 @@ import { getChipColor, MethodChip } from "./MethodChip";
 import "./SwaggerEntry.scss";
 import { ResponseChip } from "./ResponseChip";
 import { Parameters } from "./Parameters";
+import { RequestBody } from "./RequestBody";
 
 type Props = {
 	data: SwaggerRoute;
@@ -44,36 +45,50 @@ export function SwaggerEntry({ data }: Props) {
 					</Grid>
 				</DialogTitle>
 				<DialogContent dividers={true}>
-					<Grid container spacing={3} direction={"column"}>
-						<Grid item>
-							<DialogContentText>{data.description}</DialogContentText>
-						</Grid>
-
-						<Grid container item>
+					<Grid container spacing={4} direction={"column"}>
+						<Grid item container spacing={3} direction={"column"}>
 							<Grid item>
-								<Typography variant={"overline"}>Parameters</Typography>
+								<DialogContentText>{data.description}</DialogContentText>
 							</Grid>
 
-							<Grid container item spacing={0.7}>
-								{data.parameters.map((param) => (
-									<Grid item className={"w100"}>
-										<Parameters key={param.name} {...param} />
+							<Grid container item>
+								<Grid item bgcolor={"background.default"} className={"w100"}>
+									<Typography variant={"overline"}>Parameters</Typography>
+								</Grid>
+
+								<Grid container item spacing={1} bgcolor={"background.default"} className={"w100"} pb={2}>
+									{data.parameters.map((param) => (
+										<Grid item className={"w100"}>
+											<Parameters key={param.name} {...param} />
+										</Grid>
+									))}
+								</Grid>
+							</Grid>
+
+							{data.requestBody && (
+								<Grid container item>
+									<Grid item bgcolor={"background.default"} className={"w100"} p={2}>
+										<Typography variant={"overline"}>Body</Typography>
 									</Grid>
-								))}
-							</Grid>
-						</Grid>
 
-						<Grid container item>
-							<Grid item>
-								<Typography variant={"overline"}>HTTP Responses</Typography>
-							</Grid>
-
-							<Grid container item spacing={0.7} direction={"column"}>
-								{data.responses.map((res) => (
-									<Grid item xs={true}>
-										<ResponseChip key={res.statusCode} {...res} uri={data.uri} method={data.method} />
+									<Grid container item bgcolor={"background.default"} className={"w100"} pb={2}>
+										<RequestBody {...data.requestBody} uri={data.uri} method={data.method} />
 									</Grid>
-								))}
+								</Grid>
+							)}
+
+							<Grid container item>
+								<Grid item bgcolor={"background.default"} className={"w100"} p={2}>
+									<Typography variant={"overline"}>HTTP Responses</Typography>
+								</Grid>
+
+								<Grid container item spacing={0.7} bgcolor={"background.default"} direction={"column"} className={"w100"} pb={2}>
+									{data.responses.map((res) => (
+										<Grid item xs={true}>
+											<ResponseChip key={res.statusCode} {...res} uri={data.uri} method={data.method} />
+										</Grid>
+									))}
+								</Grid>
 							</Grid>
 						</Grid>
 					</Grid>

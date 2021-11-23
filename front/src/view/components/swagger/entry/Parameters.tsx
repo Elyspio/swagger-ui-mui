@@ -1,10 +1,10 @@
 import { SwaggerParameter } from "../../../../store/module/swagger/swagger.types";
 import React from "react";
 import { Grid, Typography } from "@mui/material";
-import { JsonViewer } from "../../viewer/JsonViewer";
 import { useInjection } from "inversify-react";
 import { SwaggerService } from "../../../../core/services/swagger/swagger.service";
 import { DiKeysService } from "../../../../core/di/services/di.keys.service";
+import { ObjectViewer } from "../../viewer/ObjectViewer";
 
 export function Parameters({ description, schema, name, required }: SwaggerParameter) {
 	const services = {
@@ -35,7 +35,11 @@ export function Parameters({ description, schema, name, required }: SwaggerParam
 			</Grid>
 
 			<Grid item xs={5}>
-				{schema.type === "object" || schema.type === "array" ? <JsonViewer data={services.swagger.jsonObjectToJsonExample(schema)} /> : <pre>{schema.type}</pre>}
+				{schema.type === "object" || schema.type === "array" ? (
+					<ObjectViewer obj={services.swagger.jsonObjectToJsonExample(schema)} schema={schema} />
+				) : (
+					<pre>{schema.type}</pre>
+				)}
 			</Grid>
 		</Grid>
 	);

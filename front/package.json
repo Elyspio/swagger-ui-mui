@@ -11,11 +11,12 @@
 		"docker": "cd ../back && npm run docker"
 	},
 	"dependencies": {
+		"@emotion/react": "^11.5.0",
+		"@emotion/styled": "^11.3.0",
+		"@mui/icons-material": "^5.1.0",
+		"@mui/lab": "^5.0.0-alpha.56",
 		"@mui/material": "^5.1.0",
 		"@mui/styles": "^5.1.0",
-		"@mui/icons-material": "^5.1.0",
-		"@emotion/styled": "^11.3.0",
-		"@emotion/react": "^11.5.0",
 		"@reduxjs/toolkit": "^1.6.2",
 		"axios": "^0.24.0",
 		"inversify": "^5.1.1",
