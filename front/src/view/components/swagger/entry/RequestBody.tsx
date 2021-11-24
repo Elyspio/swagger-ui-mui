@@ -6,12 +6,12 @@ import { SwaggerService } from "../../../../core/services/swagger/swagger.servic
 import { DiKeysService } from "../../../../core/di/services/di.keys.service";
 import { ObjectViewer } from "../../viewer/ObjectViewer";
 
-export function RequestBody({ description, content, required, method, uri }: SwaggerRequestBody & { uri: string; method: HTTPMethod }) {
+export function RequestBody({ description, content }: SwaggerRequestBody & { uri: string; method: HTTPMethod }) {
 	const contentTypes = React.useMemo(() => {
 		return Object.keys(content ?? {});
 	}, [content]);
 
-	const [contentType, setContentType] = useState(contentTypes[0] ?? "");
+	const [contentType] = useState(contentTypes[0] ?? "");
 
 	let schema = React.useMemo(() => content?.[contentType]?.schema, [content, contentType]);
 

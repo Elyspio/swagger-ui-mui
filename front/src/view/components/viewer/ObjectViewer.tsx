@@ -1,4 +1,5 @@
 import * as React from "react";
+import { ReactNode } from "react";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import TreeView from "@mui/lab/TreeView";
@@ -7,9 +8,9 @@ import Typography from "@mui/material/Typography";
 import Label from "@mui/icons-material/Label";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import { DataArray, Remove } from "@mui/icons-material";
 
 import { SvgIconProps } from "@mui/material/SvgIcon";
-import { Remove } from "@mui/icons-material";
 import { SwaggerSchema } from "../../../store/module/swagger/swagger.types";
 
 declare module "react" {
@@ -23,7 +24,7 @@ type StyledTreeItemProps = TreeItemProps & {
 	bgColor?: string;
 	color?: string;
 	labelIcon: React.ElementType<SvgIconProps>;
-	labelInfo?: string;
+	labelInfo?: ReactNode;
 	labelText?: string;
 	hideKey?: boolean;
 	required?: boolean;
@@ -78,7 +79,7 @@ function StyledTreeItem(props: StyledTreeItemProps) {
 							)}
 						</Typography>
 					)}
-					<Typography variant="caption" color="inherit" sx={{ flexGrow: 0.25 }}>
+					<Typography variant="caption" color="inherit" sx={{ flexGrow: 0.25, textAlign: props.hideKey ? "unset" : "end", paddingRight: 2 }}>
 						{labelInfo}
 					</Typography>
 				</Box>
@@ -97,31 +98,51 @@ let x = 0;
 function UnderTree({ obj, hideKey, schema }: { obj: object; hideKey?: boolean; schema?: SwaggerSchema }) {
 	return (
 		<>
-			{Object.entries(obj).map(([key, val]: [string, any]) => {
+			{Object.entries(obj).map(([key, val]: [string, any], index) => {
 				if (typeof val === "object") {
 					if (val instanceof Array) {
 						return (
-							<StyledTreeItem hideKey={hideKey} nodeId={x++ + ""} labelText={key} labelIcon={Label} required={schema?.required?.includes(key) ?? false}>
-								{val.map((v) => (
-									<UnderTree obj={v} hideKey schema={schema?.properties[key]} />
-								))}
+							<StyledTreeItem
+								key={index}
+								hideKey={hideKey}
+								nodeId={x++ + ""}
+								labelText={key}
+								labelIcon={DataArray}
+								required={schema?.required?.includes(key) ?? false}
+							>
+								{val.map((v, index) =>
+									schema?.properties[key].enum ? (
+										<StyledTreeItem
+											key={index}
+											hideKey
+											nodeId={x++ + ""}
+											labelIcon={Remove}
+											labelInfo={v + ""}
+											required={schema?.required?.includes(key) ?? false}
+										/>
+									) : (
+										<UnderTree hideKey={schema?.properties[key].type !== "object"} key={index} obj={v} schema={schema?.properties[key]} />
+									)
+								)}
 							</StyledTreeItem>
 						);
 					} else {
 						return (
-							<StyledTreeItem hideKey={hideKey} nodeId={x++ + ""} labelText={key} labelIcon={Label} required={schema?.required?.includes(key) ?? false}>
+							<StyledTreeItem key={index} hideKey={hideKey} nodeId={x++ + ""} labelText={key} labelIcon={Label} required={schema?.required?.includes(key) ?? false}>
 								<UnderTree obj={val} schema={schema?.properties[key]} />
 							</StyledTreeItem>
 						);
 					}
 				} else if (typeof val === "boolean" || typeof val === "string" || typeof val === "number") {
+					console.log(val, schema);
 					return (
 						<StyledTreeItem
-							hideKey={hideKey}
+							key={index}
+							hideKey={!!schema?.items?.enum}
 							nodeId={x++ + ""}
 							labelText={key}
 							labelIcon={Remove}
-							labelInfo={val + ""}
+							labelInfo={schema?.items?.enum ? val : typeof val}
 							required={schema?.required?.includes(key) ?? false}
 						/>
 					);

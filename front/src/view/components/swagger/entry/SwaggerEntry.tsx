@@ -52,14 +52,14 @@ export function SwaggerEntry({ data }: Props) {
 							</Grid>
 
 							<Grid container item>
-								<Grid item bgcolor={"background.default"} className={"w100"}>
+								<Grid item className={"w100"} p={2}>
 									<Typography variant={"overline"}>Parameters</Typography>
 								</Grid>
 
-								<Grid container item spacing={1} bgcolor={"background.default"} className={"w100"} pb={2}>
+								<Grid container item spacing={1} className={"w100"} pb={2}>
 									{data.parameters.map((param) => (
-										<Grid item className={"w100"}>
-											<Parameters key={param.name} {...param} />
+										<Grid item key={`${param.name} ${param.in}`} className={"w100"}>
+											<Parameters {...param} />
 										</Grid>
 									))}
 								</Grid>
@@ -67,25 +67,25 @@ export function SwaggerEntry({ data }: Props) {
 
 							{data.requestBody && (
 								<Grid container item>
-									<Grid item bgcolor={"background.default"} className={"w100"} p={2}>
+									<Grid item className={"w100"} p={2}>
 										<Typography variant={"overline"}>Body</Typography>
 									</Grid>
 
-									<Grid container item bgcolor={"background.default"} className={"w100"} pb={2}>
+									<Grid container item className={"w100"} pb={2}>
 										<RequestBody {...data.requestBody} uri={data.uri} method={data.method} />
 									</Grid>
 								</Grid>
 							)}
 
 							<Grid container item>
-								<Grid item bgcolor={"background.default"} className={"w100"} p={2}>
+								<Grid item className={"w100"} p={2}>
 									<Typography variant={"overline"}>HTTP Responses</Typography>
 								</Grid>
 
-								<Grid container item spacing={0.7} bgcolor={"background.default"} direction={"column"} className={"w100"} pb={2}>
+								<Grid container item spacing={0.7} direction={"column"} className={"w100"} pb={2}>
 									{data.responses.map((res) => (
-										<Grid item xs={true}>
-											<ResponseChip key={res.statusCode} {...res} uri={data.uri} method={data.method} />
+										<Grid item xs={true} key={res.statusCode}>
+											<ResponseChip {...res} uri={data.uri} method={data.method} />
 										</Grid>
 									))}
 								</Grid>

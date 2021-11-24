@@ -2,10 +2,10 @@ import { HTTPMethod, SwaggerResponse } from "../../../../store/module/swagger/sw
 import React, { useState } from "react";
 import { AlertColor } from "@mui/material/Alert/Alert";
 import { Alert, FormControl, Grid, MenuItem, Select, Typography } from "@mui/material";
-import { JsonViewer } from "../../viewer/JsonViewer";
 import { useInjection } from "inversify-react";
 import { SwaggerService } from "../../../../core/services/swagger/swagger.service";
 import { DiKeysService } from "../../../../core/di/services/di.keys.service";
+import { ObjectViewer } from "../../viewer/ObjectViewer";
 
 export function ResponseChip({ description, statusCode, content, uri, method }: SwaggerResponse & { uri: string; method: HTTPMethod }) {
 	const contentTypes = React.useMemo(() => {
@@ -50,7 +50,9 @@ export function ResponseChip({ description, statusCode, content, uri, method }: 
 								onChange={(e) => setContentType(e.target.value)}
 							>
 								{contentTypes.map((type) => (
-									<MenuItem value={type}>{type}</MenuItem>
+									<MenuItem key={type} value={type}>
+										{type}
+									</MenuItem>
 								))}
 							</Select>
 						</FormControl>
@@ -58,7 +60,11 @@ export function ResponseChip({ description, statusCode, content, uri, method }: 
 				</Grid>
 				<Grid item xs={5}>
 					{contentTypes[0] &&
-						(schema.type === "object" || schema.type === "array" ? <JsonViewer data={services.swagger.jsonObjectToJsonExample(schema)} /> : <pre>{schema.type}</pre>)}
+						(schema.type === "object" || schema.type === "array" ? (
+							<ObjectViewer obj={services.swagger.jsonObjectToJsonExample(schema)} schema={schema} />
+						) : (
+							<pre>{schema.type}</pre>
+						))}
 				</Grid>
 			</Grid>
 		</Alert>
